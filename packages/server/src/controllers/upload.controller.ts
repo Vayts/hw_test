@@ -56,6 +56,8 @@ export class UploadController {
               res.status(409).send({ message: 'Something went wrong.' });
             });
         }
+      } else {
+        res.status(409).send({ message: 'Invalid request' });
       }
     });
   }
