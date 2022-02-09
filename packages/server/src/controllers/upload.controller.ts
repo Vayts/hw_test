@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { upload } from '../middleware/multer.middleware';
-import { AWSUploader } from '../middleware/upload.middleware';
+import { AWSUploader } from './AWSUploader.controller';
 
 export class UploadController {
   path = '/*';
@@ -12,13 +12,10 @@ export class UploadController {
   }
 
   checkRoutes() {
-    this.router.post('/*', this.uploadFile.bind(this));
+    this.router.post('/*', UploadController.uploadFile);
   }
 
-  uploadFile(req: Request, res: Response) {
-    // if (req.file) {
-    //
-    // }
+  static uploadFile(req: Request, res: Response) {
     const uploadFileToS3 = upload.single('file');
     uploadFileToS3(req, res, (err) => {
       if (err) {
@@ -31,7 +28,8 @@ export class UploadController {
           Bucket: <string>process.env.BUCKET,
           Key: '',
         };
-        const fileName = req.file.originalname;
+        const fileName = req.file.originalname.replace(/\s/g, '');
+        const amazonUrl = 'https://15hw-nodejs.s3.eu-central-1.amazonaws.com/';
         if (req.file.mimetype.includes('image/') && req.file.mimetype !== 'image/gif') {
           const img = new AWSUploader();
           const largeImg = img.uploadImg(params, 2048, fileName, 'large');
@@ -42,7 +40,7 @@ export class UploadController {
             .then(() => {
               res
                 .status(200)
-                .send({ message: 'The image has been successfully converted and uploaded' });
+                .send({ message: `The image has been successfully converted and uploaded.`, htmlContent: `<a href="${amazonUrl}large_${fileName}">Large</a><a href="${amazonUrl}medium_${fileName}">Medium</a><a href="${amazonUrl}thumb_${fileName}">Thumb</a>` });
             })
             .catch(() => {
               res.status(409).send({ message: 'Something went wrong.' });
@@ -52,7 +50,7 @@ export class UploadController {
           file
             .uploadCommonFile(params, fileName)
             .then(() => {
-              res.status(200).send({ message: 'File successfully uploaded' });
+              res.status(200).send({ message: `File successfully uploaded.`, htmlContent: `<a href="${amazonUrl}${fileName}">File</a>`});
             })
             .catch(() => {
               res.status(409).send({ message: 'Something went wrong.' });

@@ -1,6 +1,4 @@
-import { NextFunction } from 'express';
 import multer from 'multer';
-
 
 const allowedMimeType = [
   'audio/aac',

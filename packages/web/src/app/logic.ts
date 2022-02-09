@@ -1,18 +1,16 @@
 import {
   getFileFromInput,
+  removeChild,
   removeDisabledAttribute,
   setDisabledAttribute,
+  setHTMLValue,
   setInputValue,
   setTextValue,
 } from './utils';
 
-export function fillInput(state) {
-  const file: File = <File>getFileFromInput('load-file');
-  const fileExtension = checkMimeType(file.name);
-  validateInput(state, fileExtension, file.name);
-}
-
 export function validateInput(state, extension, name) {
+  console.log('test');
+  console.log(extension);
   if (extension === false) {
     setTextValue('file-message', 'Unsupported file format');
     setDisabledAttribute('send-file');
@@ -75,13 +73,6 @@ export function checkMimeType(fileName): boolean | string {
   return false;
 }
 
-export function startSending(state) {
-  sendFile(state, getFileFromInput('load-file'));
-  setInputValue('load-file', '');
-  setDisabledAttribute('send-file');
-  setTextValue('file-message', '');
-}
-
 export function sendFile(state, value) {
   setDisabledAttribute('load-file');
   setDisabledAttribute('input-label');
@@ -99,5 +90,30 @@ export function sendFile(state, value) {
     })
     .then((data) => {
       setTextValue('file-message', data.message);
+      if (data.htmlContent) {
+        setHTMLValue('img-link', data.htmlContent);
+      }
+    })
+    .catch(() => {
+      setHTMLValue('img-link', 'Something went wrong!');
     });
+}
+
+export function startSending(state) {
+  sendFile(state, getFileFromInput('load-file'));
+  setInputValue('load-file', '');
+  setDisabledAttribute('send-file');
+  setTextValue('file-message', '');
+  return 'Process start';
+}
+
+export function fillInput(state) {
+  const file: File = <File>getFileFromInput('load-file');
+  if (file) {
+    const fileExtension = checkMimeType(file.name);
+    validateInput(state, fileExtension, file.name);
+    removeChild('img-link');
+    return true;
+  }
+  return false;
 }
