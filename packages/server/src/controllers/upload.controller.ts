@@ -28,7 +28,10 @@ export class UploadController {
           Bucket: <string>process.env.BUCKET,
           Key: '',
         };
-        const fileName = req.file.originalname.replace(/\s/g, '');
+
+
+        const timeStamp = Date.now();
+        const fileName = `${timeStamp}_${req.file.originalname.replace(/\s/g, '')}`;
         const amazonUrl = 'https://15hw-nodejs.s3.eu-central-1.amazonaws.com/';
 
         if (req.file.mimetype.includes('image/') && req.file.mimetype !== 'image/gif') {
