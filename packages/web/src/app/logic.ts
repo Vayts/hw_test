@@ -9,8 +9,6 @@ import {
 } from './utils';
 
 export function validateInput(state, extension, name) {
-  console.log('test');
-  console.log(extension);
   if (extension === false) {
     setTextValue('file-message', 'Unsupported file format');
     setDisabledAttribute('send-file');

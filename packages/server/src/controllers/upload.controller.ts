@@ -30,6 +30,7 @@ export class UploadController {
         };
         const fileName = req.file.originalname.replace(/\s/g, '');
         const amazonUrl = 'https://15hw-nodejs.s3.eu-central-1.amazonaws.com/';
+
         if (req.file.mimetype.includes('image/') && req.file.mimetype !== 'image/gif') {
           const img = new AWSUploader();
           const largeImg = img.uploadImg(params, 2048, fileName, 'large');
@@ -37,27 +38,28 @@ export class UploadController {
           const thumbImg = img.uploadImg(params, 300, fileName, 'thumb');
 
           Promise.all([largeImg, mediumImg, thumbImg])
-            .then(() => {
-              res
-                .status(200)
-                .send({ message: `The image has been successfully converted and uploaded.`, htmlContent: `<a href="${amazonUrl}large_${fileName}">Large</a><a href="${amazonUrl}medium_${fileName}">Medium</a><a href="${amazonUrl}thumb_${fileName}">Thumb</a>` });
-            })
-            .catch(() => {
-              res.status(409).send({ message: 'Something went wrong.' });
-            });
+            .then(() =>
+              res.status(200).send({
+                message: `The image has been successfully converted and uploaded.`,
+                htmlContent: `<a href="${amazonUrl}large_${fileName}">Large</a><a href="${amazonUrl}medium_${fileName}">Medium</a><a href="${amazonUrl}thumb_${fileName}">Thumb</a>`,
+              }),
+            )
+            .catch(() => res.status(409).send({ message: 'Something went wrong.' }));
         } else {
           const file = new AWSUploader();
+
           file
             .uploadCommonFile(params, fileName)
-            .then(() => {
-              res.status(200).send({ message: `File successfully uploaded.`, htmlContent: `<a href="${amazonUrl}${fileName}">File</a>`});
-            })
-            .catch(() => {
-              res.status(409).send({ message: 'Something went wrong.' });
-            });
+            .then(() =>
+              res.status(200).send({
+                message: `File successfully uploaded.`,
+                htmlContent: `<a href="${amazonUrl}${fileName}">File</a>`,
+              }),
+            )
+            .catch(() => res.status(409).send({ message: 'Something went wrong.' }));
         }
       } else {
-        res.status(409).send({ message: 'Invalid request' });
+        return res.status(409).send({ message: 'Invalid request' });
       }
     });
   }
