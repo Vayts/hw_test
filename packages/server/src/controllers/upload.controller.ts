@@ -29,7 +29,6 @@ export class UploadController {
           Key: '',
         };
 
-
         const timeStamp = Date.now();
         const fileName = `${timeStamp}_${req.file.originalname.replace(/\s/g, '')}`;
         const amazonUrl = 'https://15hw-nodejs.s3.eu-central-1.amazonaws.com/';
